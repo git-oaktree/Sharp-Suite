@@ -53,6 +53,13 @@ C:\>SwampThing.exe -l C:\Windows\System32\notepad.exe -f C:\aaa.txt -r C:\bbb.tx
 
 DesertNut is a proof-of-concept for code injection using subclassed window callbacks (more commonly known as PROPagate). The pertinent part here is that this does not use any suspect thread creation API's, instead as implied it hijacks window callbacks. DesertNut includes two flags: "-l" to list all potential properties that could be hijacked and "-i" to inject shellcode into explorer and execute notepad. Note that this POC is only designed for x64 (tested on Win10 RS5 & Win7) since it requires custom shellcode with a specific callback function prototype. For further details please see [this post](http://www.hexacorn.com/blog/2017/10/26/propagate-a-new-code-injection-trick/) by Hexacorn and [this post](https://modexp.wordpress.com/2018/08/23/process-injection-propagate/) by modexp.
 
+
+Use https://gist.githubusercontent.com/rvrsh3ll/abea05538480db9e41afa3799e5053bb/raw/74cdb762da1aa8556d04959d83900eaa2d6170d6/ConvertShellcode.py to convert beacon.bin to usable shellcode (shellcode.txt).
+
+#Convert shellcode.txt to base64 blob to place in resource file
+
+cat shellcode.txt |sed 's/[, ]//g; s/0x//g;' |tr -d '\n' |xxd -p -r |gzip -c |base64 > b64shellcode.txt
+
 ```
 C:\> DesertNut.exe -i
            ,                        '           .        '        ,
