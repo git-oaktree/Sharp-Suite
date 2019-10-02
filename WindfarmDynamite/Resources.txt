@@ -1,0 +1,1 @@
+﻿<ADD GZIP, BASE64 encoded x64 shellcode here> See readme
