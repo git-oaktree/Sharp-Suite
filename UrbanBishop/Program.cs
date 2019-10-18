@@ -117,12 +117,8 @@ namespace UrbanBishop
         static void Main(string[] args)
         {
             BerlinDefence.PrintBanner();
-            if (args.Length == 5)
-            {
-                //BerlinDefence.GetHelp();
-                Console.WriteLine("this shouldn't hit");
-            } else
-            {
+       
+            
                 //int iPathScBin = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(p|Path)$").Match(s).Success);
                 //int iPID = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(i|Inject)$").Match(s).Success);
                 Process[] Explorer = Process.GetProcessesByName("explorer");
@@ -182,7 +178,7 @@ namespace UrbanBishop
                 {
                     BerlinDefence.GetHelp();
                 }
-            }
+            
         }
     }
 }
