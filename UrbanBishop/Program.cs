@@ -1,6 +1,8 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+
 
 namespace UrbanBishop
 {
@@ -115,13 +117,18 @@ namespace UrbanBishop
         static void Main(string[] args)
         {
             BerlinDefence.PrintBanner();
-            if (args.Length == 0)
+            if (args.Length == 5)
             {
-                BerlinDefence.GetHelp();
+                //BerlinDefence.GetHelp();
+                Console.WriteLine("this shouldn't hit");
             } else
             {
                 //int iPathScBin = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(p|Path)$").Match(s).Success);
-                int iPID = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(i|Inject)$").Match(s).Success);
+                //int iPID = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(i|Inject)$").Match(s).Success);
+                Process[] Explorer = Process.GetProcessesByName("explorer");
+                Process singlePid = Explorer[0];
+                int iPID = singlePid.Id;
+
                 int bClean = Array.FindIndex(args, s => new Regex(@"(?i)(-|--|/)(c|Clean)$").Match(s).Success);
                 if (iPID != -1)
                 {
@@ -134,7 +141,8 @@ namespace UrbanBishop
                     try
                     {
                         //String sPathScBin = args[(iPathScBin + 1)];
-                        Int32 Proc = int.Parse(args[(iPID + 1)]);
+                        //Int32 Proc = int.Parse(args[(iPID + 1)]);
+                        Int32 Proc = iPID;
                         //Boolean bFilePath = BerlinDefence.PathIsFile(sPathScBin);
                         BerlinDefence.PROC_VALIDATION pv = BerlinDefence.ValidateProc(Proc);
 
